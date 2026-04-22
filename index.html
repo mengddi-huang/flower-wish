@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>繁花之境 · 为你许愿</title>
+<style>
+  :root {
+    --bg-1: #1a0b2e;
+    --bg-2: #2d1b4e;
+    --bg-3: #5b2a86;
+    --accent: #ffb3d9;
+    --gold: #ffd86b;
+    --text: #fff5fb;
+    --muted: #d9c6e8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    overflow-x: hidden;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system, sans-serif;
+    color: var(--text);
+    background: radial-gradient(ellipse at top, var(--bg-3) 0%, var(--bg-2) 40%, var(--bg-1) 100%);
+    background-attachment: fixed;
+  }
+
+  /* ===== 背景动画：星空 + 光晕 ===== */
+  .stars {
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+      radial-gradient(1px 1px at 40px 70px, #fff, transparent),
+      radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+      radial-gradient(2px 2px at 160px 120px, #fff, transparent),
+      radial-gradient(1px 1px at 220px 90px, #fff, transparent),
+      radial-gradient(1px 1px at 280px 150px, #fff, transparent),
+      radial-gradient(2px 2px at 330px 60px, #ffe6f2, transparent);
+    background-size: 400px 200px;
+    opacity: 0.45;
+    animation: twinkle 6s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes twinkle {
+    from { opacity: 0.25; }
+    to   { opacity: 0.55; }
+  }
+
+  .aurora {
+    position: fixed; inset: -20%;
+    background:
+      radial-gradient(closest-side, rgba(255,179,217,0.25), transparent 70%) 20% 30% / 60% 60% no-repeat,
+      radial-gradient(closest-side, rgba(140,89,216,0.35), transparent 70%) 80% 20% / 55% 55% no-repeat,
+      radial-gradient(closest-side, rgba(255,216,107,0.18), transparent 70%) 60% 80% / 50% 50% no-repeat;
+    filter: blur(40px);
+    animation: floatAurora 18s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes floatAurora {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(-4%, 3%) scale(1.1); }
+  }
+
+  /* 落花粒子 */
+  .petals {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .petal {
+    position: absolute;
+    top: -40px;
+    font-size: 20px;
+    opacity: 0.85;
+    animation: fall linear infinite;
+    filter: drop-shadow(0 0 6px rgba(255,179,217,0.7));
+  }
+  @keyframes fall {
+    0%   { transform: translate(0, -10vh) rotate(0deg);   opacity: 0; }
+    10%  { opacity: 0.9; }
+    100% { transform: translate(40px, 110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== 主容器 ===== */
+  .wrap {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 64px 24px 120px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: fadeUp 1s ease both;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 900;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #ffe6f2, #ffb3d9 30%, #ffd86b 60%, #ffb3d9 80%, #ffe6f2);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 6s linear infinite;
+    text-shadow: 0 0 40px rgba(255,179,217,0.3);
+  }
+  @keyframes shimmer {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  .hero .sub {
+    margin-top: 16px;
+    font-size: clamp(14px, 1.6vw, 18px);
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+  .hero .sub span { color: var(--gold); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== 花园网格 ===== */
+  .garden {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+    margin-bottom: 48px;
+  }
+
+  .flower-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 28px 20px 22px;
+    text-align: center;
+    cursor: pointer;
+    background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: transform 0.4s cubic-bezier(.2,.8,.2,1), box-shadow 0.4s, border-color 0.4s;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .flower-card::before {
+    content: "";
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,179,217,0.25), transparent 60%);
+    opacity: 0; transition: opacity 0.4s;
+    z-index: -1;
+  }
+  .flower-card:hover { transform: translateY(-6px) scale(1.02); border-color: rgba(255,179,217,0.5); box-shadow: 0 20px 50px -20px rgba(255,179,217,0.5); }
+  .flower-card:hover::before { opacity: 1; }
+
+  .flower-card.selected {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold), 0 20px 60px -20px rgba(255,216,107,0.7);
+    background: linear-gradient(160deg, rgba(255,216,107,0.18), rgba(255,179,217,0.1));
+  }
+  .flower-card.selected::after {
+    content: "✓";
+    position: absolute; top: 12px; right: 14px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: #3a2464;
+    font-weight: 900;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    animation: pop 0.4s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+
+  .flower-emoji {
+    font-size: 64px;
+    line-height: 1;
+    display: inline-block;
+    filter: drop-shadow(0 6px 20px rgba(255,179,217,0.5));
+    animation: sway 4s ease-in-out infinite;
+  }
+  .flower-card:nth-child(2n) .flower-emoji { animation-delay: -1s; }
+  .flower-card:nth-child(3n) .flower-emoji { animation-delay: -2s; }
+  @keyframes sway {
+    0%, 100% { transform: rotate(-4deg) translateY(0); }
+    50%      { transform: rotate(4deg) translateY(-4px); }
+  }
+
+  .flower-name {
+    margin-top: 14px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .flower-meaning {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    min-height: 32px;
+  }
+
+  /* ===== 许愿区 ===== */
+  .wish-panel {
+    position: relative;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 32px 28px;
+    border-radius: 24px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 30px 80px -30px rgba(0,0,0,0.6);
+  }
+
+  .wish-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .wish-label::before {
+    content: "✦"; color: var(--gold); font-size: 18px;
+  }
+
+  .wish-input, .name-input {
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .wish-input { min-height: 100px; }
+  .wish-flower-input {
+    padding: 16px 18px;
+    font-size: 17px;
+    letter-spacing: 1px;
+  }
+  .wish-input:focus, .name-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(255,179,217,0.25);
+  }
+
+  /* 已选花语大卡片 */
+  .chosen-card {
+    position: relative;
+    min-height: 120px;
+    margin: 12px 0 22px;
+    padding: 22px 22px;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.22);
+    border: 1px dashed rgba(255,255,255,0.18);
+    display: flex; align-items: center; gap: 18px;
+    transition: border-color 0.4s, background 0.4s, box-shadow 0.4s;
+  }
+  .chosen-card.has-value {
+    border: 1px solid var(--gold);
+    background: linear-gradient(135deg, rgba(255,216,107,0.14), rgba(255,179,217,0.1));
+    box-shadow: 0 20px 50px -20px rgba(255,216,107,0.45);
+  }
+  .chosen-empty { color: var(--muted); font-size: 14px; letter-spacing: 1px; }
+  .chosen-emoji {
+    font-size: 60px;
+    line-height: 1;
+    filter: drop-shadow(0 6px 20px rgba(255,179,217,0.6));
+    animation: sway 4s ease-in-out infinite;
+  }
+  .chosen-text { display: flex; flex-direction: column; gap: 6px; }
+  .chosen-name {
+    font-size: 22px; font-weight: 800; letter-spacing: 3px;
+    color: var(--gold);
+  }
+  .chosen-meaning {
+    font-size: 17px; font-weight: 500; letter-spacing: 1.5px;
+    line-height: 1.55;
+    color: var(--text);
+  }
+  .chosen-meaning::before { content: "“"; color: var(--accent); margin-right: 2px; }
+  .chosen-meaning::after  { content: "”"; color: var(--accent); margin-left: 2px; }
+
+  .submit-btn {
+    position: relative;
+    width: 100%;
+    padding: 16px 24px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: #3a2464;
+    background: linear-gradient(135deg, #ffe6f2, #ffd86b 50%, #ffb3d9);
+    background-size: 200% 200%;
+    cursor: pointer;
+    overflow: hidden;
+    box-shadow: 0 12px 40px -10px rgba(255,216,107,0.7);
+    transition: transform 0.2s, box-shadow 0.3s, filter 0.3s;
+    animation: shimmer 8s linear infinite;
+  }
+  .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 50px -10px rgba(255,216,107,0.9); }
+  .submit-btn:active:not(:disabled) { transform: translateY(0) scale(0.99); }
+  .submit-btn:disabled { filter: grayscale(0.6) brightness(0.75); cursor: not-allowed; opacity: 0.7; }
+
+  /* 次级（幽灵）按钮 */
+  .submit-btn--ghost {
+    color: var(--text);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,179,217,0.15));
+    border: 1px solid rgba(255,179,217,0.5);
+    box-shadow: 0 10px 30px -10px rgba(255,179,217,0.35);
+    animation: none;
+  }
+  .submit-btn--ghost:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(255,179,217,0.3), rgba(255,216,107,0.25));
+    box-shadow: 0 16px 40px -10px rgba(255,179,217,0.7);
+  }
+
+  /* 分隔线 */
+  .divider {
+    position: relative;
+    text-align: center;
+    margin: 44px auto 28px;
+    max-width: 720px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 6px;
+  }
+  .divider::before, .divider::after {
+    content: "";
+    position: absolute; top: 50%;
+    width: calc(50% - 40px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  }
+  .divider::before { left: 0; }
+  .divider::after  { right: 0; }
+  .divider span {
+    display: inline-block;
+    padding: 0 10px;
+    background: transparent;
+  }
+
+  /* 字数计数 */
+  .counter {
+    text-align: right;
+    margin: 6px 2px 18px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+
+  .submit-btn .spinner {
+    display: none;
+    width: 18px; height: 18px;
+    border: 2.5px solid rgba(58,36,100,0.3);
+    border-top-color: #3a2464;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  .submit-btn.loading .spinner { display: inline-block; }
+  .submit-btn.loading .text::before { content: "发送中…"; }
+  .submit-btn.loading .text-default { display: none; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== 成功 / 错误提示 ===== */
+  .toast {
+    position: fixed;
+    top: 30px; left: 50%;
+    transform: translateX(-50%) translateY(-120%);
+    padding: 14px 24px;
+    border-radius: 14px;
+    color: #3a2464;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+    z-index: 100;
+    transition: transform 0.5s cubic-bezier(.2,.9,.2,1.1);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: linear-gradient(135deg, #ffe6f2, #ffd86b); }
+  .toast.error   { background: linear-gradient(135deg, #ffb3b3, #ff8ca8); color: #4a1030; }
+
+  /* ===== 成功烟花 ===== */
+  .celebration {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  /* ===== 历史订单按钮 + 抽屉 ===== */
+  .history-fab {
+    position: fixed;
+    top: 20px; right: 20px;
+    z-index: 30;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,179,217,0.18));
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--text);
+    font-size: 13px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.4);
+    transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+  }
+  .history-fab:hover { transform: translateY(-2px); background: linear-gradient(135deg, rgba(255,179,217,0.25), rgba(255,216,107,0.25)); box-shadow: 0 14px 36px -10px rgba(255,179,217,0.5); }
+  .history-fab .badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 999px;
+    background: var(--gold); color: #3a2464;
+    font-size: 11px; font-weight: 800; letter-spacing: 0;
+  }
+
+  .drawer-mask {
+    position: fixed; inset: 0;
+    background: rgba(10,4,24,0.55);
+    backdrop-filter: blur(4px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s ease;
+    z-index: 80;
+  }
+  .drawer-mask.open { opacity: 1; pointer-events: auto; }
+
+  .drawer {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(440px, 92vw);
+    height: 100%;
+    background: linear-gradient(160deg, #2a144d, #1a0b2e);
+    border-left: 1px solid rgba(255,255,255,0.12);
+    box-shadow: -20px 0 60px -10px rgba(0,0,0,0.6);
+    transform: translateX(100%);
+    transition: transform 0.45s cubic-bezier(.2,.8,.2,1);
+    z-index: 90;
+    display: flex; flex-direction: column;
+  }
+  .drawer.open { transform: translateX(0); }
+
+  .drawer-header {
+    padding: 22px 22px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .drawer-title {
+    font-size: 20px; font-weight: 800; letter-spacing: 3px;
+    background: linear-gradient(90deg, #ffe6f2, #ffd86b);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .drawer-close {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text);
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .drawer-close:hover { background: rgba(255,179,217,0.25); transform: rotate(90deg); }
+
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 18px 20px;
+  }
+  .drawer-body::-webkit-scrollbar { width: 8px; }
+  .drawer-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 8px; }
+
+  .order-item {
+    position: relative;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    animation: fadeUp 0.4s ease both;
+  }
+  .order-top { display: flex; align-items: center; gap: 12px; }
+  .order-emoji { font-size: 34px; line-height: 1; }
+  .order-name  { font-size: 16px; font-weight: 700; letter-spacing: 2px; color: var(--gold); }
+  .order-meaning { font-size: 13px; color: var(--muted); letter-spacing: 1px; margin-top: 3px; }
+  .order-time { margin-top: 8px; font-size: 11px; color: var(--muted); letter-spacing: 1px; opacity: 0.75; }
+  .order-tag {
+    position: absolute; top: 12px; right: 14px;
+    font-size: 10px; letter-spacing: 1px;
+    padding: 2px 8px; border-radius: 999px;
+    background: rgba(255,179,217,0.2);
+    color: var(--accent);
+  }
+  .order-tag.custom { background: rgba(255,216,107,0.18); color: var(--gold); }
+
+  .order-empty {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted); font-size: 14px; letter-spacing: 2px;
+  }
+  .order-empty .big { font-size: 48px; opacity: 0.6; margin-bottom: 14px; }
+
+  .drawer-footer {
+    padding: 14px 18px 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: var(--muted);
+  }
+  .clear-btn {
+    background: transparent;
+    border: 1px solid rgba(255,179,179,0.4);
+    color: #ffb3b3;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px; letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  .clear-btn:hover { background: rgba(255,179,179,0.15); }
+
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+  footer .heart { color: #ff8ca8; animation: beat 1.4s ease-in-out infinite; display: inline-block; }
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    25%      { transform: scale(1.2); }
+    50%      { transform: scale(0.95); }
+    75%      { transform: scale(1.1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="stars"></div>
+<div class="aurora"></div>
+<div class="petals" id="petals"></div>
+
+<!-- 历史订单 FAB -->
+<button class="history-fab" id="historyFab">
+  <span>📜 我的订单</span>
+  <span class="badge" id="historyBadge">0</span>
+</button>
+
+<!-- 抽屉 -->
+<div class="drawer-mask" id="drawerMask"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title">📜 订单记录</div>
+    <button class="drawer-close" id="drawerClose" aria-label="关闭">×</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-footer">
+    <span id="drawerCountText">共 0 条</span>
+    <button class="clear-btn" id="clearBtn">清空记录</button>
+  </div>
+</aside>
+
+<div class="wrap">
+  <header class="hero">
+    <h1>繁 花 之 境</h1>
+    <p class="sub">选一朵你最心动的花 · 我会<span>亲手送到</span>你面前</p>
+  </header>
+
+  <section class="garden" id="garden"></section>
+
+  <!-- ===== 已选中的花语展示 + 送出 ===== -->
+  <section class="wish-panel">
+    <div class="wish-label">你挑中的这一朵</div>
+    <div class="chosen-card" id="chosenCard">
+      <div class="chosen-empty">点一朵上面的花，就告诉我你想要她 ~</div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" disabled>
+      <span class="spinner"></span>
+      <span class="text"><span class="text-default">✦ 就 要 这 一 朵 ✦</span></span>
+    </button>
+  </section>
+
+  <!-- ===== 分隔：上面没有你想要的花 ===== -->
+  <div class="divider"><span>或 者</span></div>
+
+  <section class="wish-panel wish-panel--custom">
+    <div class="wish-label">上面没有你想要的花？告诉我你想要哪一种</div>
+    <input class="name-input wish-flower-input" id="wishInput" type="text"
+           placeholder="比如：蓝色绣球、粉色洋牡丹、栀子花、白玉兰…"
+           maxlength="40" />
+    <div class="counter"><span id="wishCount">0</span> / 40</div>
+
+    <button class="submit-btn submit-btn--ghost" id="wishBtn" disabled>
+      <span class="spinner"></span>
+      <span class="text"><span class="text-default">✦ 告 诉 我 你 要 的 花 ✦</span></span>
+    </button>
+  </section>
+
+  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+<canvas class="celebration" id="celebration"></canvas>
+
+<script>
+  // ===== 花的数据 =====
+  const FLOWERS = [
+    { emoji: "🌹", name: "红玫瑰",   meaning: "热烈的爱与心动" },
+    { emoji: "🌷", name: "郁金香",   meaning: "真挚的爱与祝福" },
+    { emoji: "🌼", name: "雏菊",     meaning: "纯真与希望" },
+    { emoji: "🌸", name: "樱花",     meaning: "生命短暂而美好" },
+    { emoji: "🌺", name: "木槿",     meaning: "温柔的坚持" },
+    { emoji: "🌻", name: "向日葵",   meaning: "沉默的守护" },
+    { emoji: "💐", name: "满天星",   meaning: "甘愿做配角的爱" },
+    { emoji: "🏵️", name: "牡丹",    meaning: "富贵与美满" },
+    { emoji: "🪷", name: "莲花",     meaning: "出淤泥而不染" },
+    { emoji: "🌾", name: "勿忘我",   meaning: "永恒的记忆" },
+    { emoji: "🥀", name: "枯萎之花", meaning: "无法说出口的遗憾" },
+    { emoji: "🌿", name: "薄荷",     meaning: "清爽而治愈的你" },
+  ];
+
+  const WEBHOOK_URL = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=3c332191-56c4-471a-afff-adc9f0aa4a53";
+
+  // ===== 渲染花园（单选） =====
+  const garden = document.getElementById("garden");
+  let currentIndex = -1;
+
+  FLOWERS.forEach((f, i) => {
+    const card = document.createElement("div");
+    card.className = "flower-card";
+    card.dataset.index = i;
+    card.style.animation = `fadeUp 0.6s ease ${i * 0.05}s both`;
+    card.innerHTML = `
+      <div class="flower-emoji">${f.emoji}</div>
+      <div class="flower-name">${f.name}</div>
+      <div class="flower-meaning">${f.meaning}</div>
+    `;
+    card.addEventListener("mousemove", (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100) + "%");
+      card.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100) + "%");
+    });
+    card.addEventListener("click", () => {
+      const cards = document.querySelectorAll(".flower-card");
+      if (currentIndex === i) {
+        currentIndex = -1;
+        card.classList.remove("selected");
+      } else {
+        cards.forEach(c => c.classList.remove("selected"));
+        currentIndex = i;
+        card.classList.add("selected");
+        burstPetal(card);
+      }
+      renderChosen();
+    });
+    garden.appendChild(card);
+  });
+
+  function renderChosen() {
+    const el = document.getElementById("chosenCard");
+    const btn = document.getElementById("submitBtn");
+    if (currentIndex < 0) {
+      el.classList.remove("has-value");
+      el.innerHTML = `<div class="chosen-empty">点一朵上面的花，它的花语就是你今天的心意 ~</div>`;
+      btn.disabled = true;
+      return;
+    }
+    const f = FLOWERS[currentIndex];
+    el.classList.add("has-value");
+    el.innerHTML = `
+      <div class="chosen-emoji">${f.emoji}</div>
+      <div class="chosen-text">
+        <div class="chosen-name">${f.name}</div>
+        <div class="chosen-meaning">${f.meaning}</div>
+      </div>
+    `;
+    btn.disabled = false;
+  }
+
+  // ===== 点花时的小粒子 =====
+  function burstPetal(card) {
+    const r = card.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const emojis = ["✨", "🌸", "💖", "✦", "🌟"];
+    for (let i = 0; i < 10; i++) {
+      const p = document.createElement("div");
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.cssText = `
+        position: fixed; left: ${cx}px; top: ${cy}px;
+        font-size: ${12 + Math.random()*14}px;
+        pointer-events: none; z-index: 60;
+        transition: all 0.9s cubic-bezier(.2,.8,.2,1);
+        opacity: 1;
+      `;
+      document.body.appendChild(p);
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 80 + Math.random() * 80;
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist - 30}px) rotate(${Math.random()*360}deg)`;
+        p.style.opacity = "0";
+      });
+      setTimeout(() => p.remove(), 1000);
+    }
+  }
+
+  // ===== 背景落花 =====
+  const petalsBox = document.getElementById("petals");
+  const petalChars = ["🌸", "🌷", "🌺", "✿", "❀", "✦"];
+  function spawnPetal() {
+    const p = document.createElement("span");
+    p.className = "petal";
+    p.textContent = petalChars[Math.floor(Math.random()*petalChars.length)];
+    p.style.left = Math.random() * 100 + "vw";
+    p.style.fontSize = (14 + Math.random()*18) + "px";
+    p.style.animationDuration = (10 + Math.random()*10) + "s";
+    p.style.animationDelay = (Math.random() * -10) + "s";
+    p.style.opacity = 0.5 + Math.random()*0.5;
+    petalsBox.appendChild(p);
+    setTimeout(() => p.remove(), 22000);
+  }
+  for (let i = 0; i < 20; i++) spawnPetal();
+  setInterval(spawnPetal, 700);
+
+  // ===== 提示 toast =====
+  function showToast(msg, type = "success") {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => { t.className = `toast ${type}`; }, 3200);
+  }
+
+  // ===== 烟花庆祝 =====
+  const canvas = document.getElementById("celebration");
+  const ctx = canvas.getContext("2d");
+  function sizeCanvas() { canvas.width = innerWidth; canvas.height = innerHeight; }
+  sizeCanvas();
+  addEventListener("resize", sizeCanvas);
+
+  function celebrate() {
+    const parts = [];
+    const colors = ["#ffb3d9", "#ffd86b", "#ffe6f2", "#c17bff", "#ff8ca8"];
+    for (let k = 0; k < 3; k++) {
+      const cx = innerWidth * (0.2 + Math.random()*0.6);
+      const cy = innerHeight * (0.3 + Math.random()*0.3);
+      for (let i = 0; i < 80; i++) {
+        const a = Math.random() * Math.PI * 2;
+        const s = 2 + Math.random() * 5;
+        parts.push({
+          x: cx, y: cy,
+          vx: Math.cos(a)*s, vy: Math.sin(a)*s - 1,
+          life: 80 + Math.random()*40,
+          age: 0,
+          color: colors[Math.floor(Math.random()*colors.length)],
+          size: 2 + Math.random()*3,
+        });
+      }
+    }
+    function tick() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      parts.forEach(p => {
+        p.age++;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.06;
+        p.vx *= 0.99;
+        const alpha = Math.max(0, 1 - p.age / p.life);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+        ctx.fill();
+      });
+      if (parts.some(p => p.age < p.life)) {
+        requestAnimationFrame(tick);
+      } else {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+      }
+    }
+    tick();
+  }
+
+  // ===== 发送到企业微信（通用） =====
+  async function sendToWeCom(content) {
+    const payload = { msgtype: "text", text: { content } };
+    try {
+      // 用 text/plain 避免 CORS 预检；企业微信照样按 JSON 解析 body
+      const res = await fetch(WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: JSON.stringify(payload),
+      });
+      let ok = res.ok;
+      try {
+        const data = await res.json();
+        ok = ok && (data.errcode === 0);
+      } catch (_) { /* 读不到响应就以 HTTP 状态为准 */ }
+      if (ok) return true;
+      throw new Error("server not ok");
+    } catch (err) {
+      // 兜底：no-cors 无法读响应，但请求会送达
+      try {
+        await fetch(WEBHOOK_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: JSON.stringify(payload),
+        });
+        return true;
+      } catch (e2) {
+        return false;
+      }
+    }
+  }
+
+  function buildTodo(lines) {
+    return (
+      `你有一条待办，请及时查看\n` +
+      `————————————\n` +
+      `💐 繁花许愿馆 新消息\n` +
+      lines.join("\n") +
+      `\n时间：${new Date().toLocaleString("zh-CN", { hour12: false })}`
+    );
+  }
+
+  async function runSend(btn, content, onSuccess) {
+    btn.classList.add("loading");
+    btn.disabled = true;
+    const ok = await sendToWeCom(content);
+    btn.classList.remove("loading");
+    if (ok) {
+      showToast("花已送达 ✦ 愿望也已悄悄寄出 🌸", "success");
+      celebrate();
+      onSuccess && onSuccess();
+    } else {
+      showToast("信鸽迷路了，请稍后再试 🌧️", "error");
+    }
+    // 重新根据状态设置 disabled
+    syncButtonsState();
+  }
+
+  function syncButtonsState() {
+    document.getElementById("submitBtn").disabled = (currentIndex < 0);
+    document.getElementById("wishBtn").disabled   = (document.getElementById("wishInput").value.trim() === "");
+  }
+
+  // ===== 送出：选中的花 =====
+  const submitBtn = document.getElementById("submitBtn");
+  submitBtn.addEventListener("click", () => {
+    if (currentIndex < 0) { showToast("请先选一朵花呀 🌸", "error"); return; }
+    const f = FLOWERS[currentIndex];
+    const content = buildTodo([
+      `她想要的花：${f.emoji} ${f.name}`,
+      `花语：${f.meaning}`,
+    ]);
+    runSend(submitBtn, content, () => {
+      addOrder({ type: "preset", emoji: f.emoji, name: f.name, meaning: f.meaning });
+      currentIndex = -1;
+      document.querySelectorAll(".flower-card.selected").forEach(c => c.classList.remove("selected"));
+      renderChosen();
+    });
+  });
+
+  // ===== 送出：指定别的花种 =====
+  const wishBtn   = document.getElementById("wishBtn");
+  const wishInput = document.getElementById("wishInput");
+  const wishCount = document.getElementById("wishCount");
+  wishInput.addEventListener("input", () => {
+    wishCount.textContent = wishInput.value.length;
+    syncButtonsState();
+  });
+  wishInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !wishBtn.disabled) { e.preventDefault(); wishBtn.click(); }
+  });
+  wishBtn.addEventListener("click", () => {
+    const flower = wishInput.value.trim();
+    if (!flower) { showToast("先写下你想要的花吧 ✍️", "error"); return; }
+    const content = buildTodo([
+      `她想要的花：${flower}`,
+      `（上面列表中没有，需单独去买）`,
+    ]);
+    runSend(wishBtn, content, () => {
+      addOrder({ type: "custom", emoji: "✨", name: flower });
+      wishInput.value = "";
+      wishCount.textContent = "0";
+    });
+  });
+
+  // ===== 历史订单（localStorage） =====
+  const LS_KEY = "flower_wish_orders_v1";
+  function loadOrders() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
+    catch { return []; }
+  }
+  function saveOrders(arr) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch {}
+  }
+  function addOrder(entry) {
+    const arr = loadOrders();
+    arr.unshift({ ...entry, id: Date.now() + "-" + Math.random().toString(36).slice(2,6), at: Date.now() });
+    saveOrders(arr.slice(0, 200));
+    renderOrders();
+  }
+  function fmtTime(ts) {
+    const d = new Date(ts);
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  function renderOrders() {
+    const arr = loadOrders();
+    document.getElementById("historyBadge").textContent = arr.length;
+    document.getElementById("drawerCountText").textContent = `共 ${arr.length} 条`;
+    const body = document.getElementById("drawerBody");
+    if (arr.length === 0) {
+      body.innerHTML = `
+        <div class="order-empty">
+          <div class="big">🌱</div>
+          还没有任何订单哦，<br/>去挑一朵花告诉我吧 ~
+        </div>`;
+      return;
+    }
+    body.innerHTML = arr.map(o => {
+      const tagCls = o.type === "custom" ? "custom" : "";
+      const tagTxt = o.type === "custom" ? "特别指定" : "花园选中";
+      return `
+        <div class="order-item">
+          <span class="order-tag ${tagCls}">${tagTxt}</span>
+          <div class="order-top">
+            <div class="order-emoji">${o.emoji || "🌷"}</div>
+            <div>
+              <div class="order-name">${escapeHtml(o.name)}</div>
+              ${o.meaning ? `<div class="order-meaning">“${escapeHtml(o.meaning)}”</div>` : ""}
+            </div>
+          </div>
+          <div class="order-time">${fmtTime(o.at)}</div>
+        </div>`;
+    }).join("");
+  }
+  function escapeHtml(s){
+    return String(s || "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" })[m]);
+  }
+
+  // 抽屉控制
+  const drawer = document.getElementById("drawer");
+  const mask   = document.getElementById("drawerMask");
+  function openDrawer()  { drawer.classList.add("open"); mask.classList.add("open"); renderOrders(); }
+  function closeDrawer() { drawer.classList.remove("open"); mask.classList.remove("open"); }
+  document.getElementById("historyFab").addEventListener("click", openDrawer);
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  mask.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+  document.getElementById("clearBtn").addEventListener("click", () => {
+    if (loadOrders().length === 0) return;
+    if (confirm("确认清空所有订单记录吗？此操作不可撤销。")) {
+      saveOrders([]);
+      renderOrders();
+    }
+  });
+
+  // 初始化
+  renderOrders();
+  syncButtonsState();
+</script>
+</body>
+</html>
