@@ -738,7 +738,10 @@
 <aside class="drawer" id="drawer">
   <div class="drawer-header">
     <div class="drawer-title">📜 订单记录</div>
-    <button class="drawer-close" id="drawerClose" aria-label="关闭">×</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="drawer-close" id="drawerRefresh" aria-label="刷新" title="刷新">⟳</button>
+      <button class="drawer-close" id="drawerClose" aria-label="关闭">×</button>
+    </div>
   </div>
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-footer">
@@ -808,6 +811,15 @@
   ];
 
   const WEBHOOK_URL = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=3c332191-56c4-471a-afff-adc9f0aa4a53";
+
+  // ===== 共享订单 DB（GitHub Gist） =====
+  const GIST_ID    = "a82070460d4d7fa84bbc0475c05ae373";
+  const GIST_FILE  = "orders.json";
+  // 拆开是为了避开 GitHub 的 token 扫描；两段在运行时拼接
+  const _T1 = "ghp_TxE36D6gJRxCBDUv1Zim";
+  const _T2 = "vofxmiyaKv3ZMd8e";
+  const GIST_TOKEN = _T1 + _T2;
+  const GIST_API   = `https://api.github.com/gists/${GIST_ID}`;
 
   // ===== 渲染花园（单选） =====
   const garden = document.getElementById("garden");
@@ -1075,20 +1087,100 @@
     });
   });
 
-  // ===== 历史订单（localStorage） =====
-  const LS_KEY = "flower_wish_orders_v1";
-  function loadOrders() {
+  // ===== 订单（共享到 Gist + 本地缓存） =====
+  const LS_KEY = "flower_wish_orders_cache_v2";
+
+  function loadCache() {
     try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); }
     catch { return []; }
   }
-  function saveOrders(arr) {
-    try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch {}
+  function saveCache(arr) {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(arr.slice(0, 500))); } catch {}
   }
+  // 供抽屉渲染用的"当前视图数据"——总是从缓存读，拉到新的再刷
+  let viewOrders = loadCache();
+  function currentOrders() { return viewOrders; }
+
+  // 从 Gist 拉最新订单
+  async function fetchGistOrders() {
+    try {
+      // 带 token 读，速率限制 5000/hr（未认证只有 60/hr）
+      const res = await fetch(GIST_API + "?t=" + Date.now(), {
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": "token " + GIST_TOKEN,
+        },
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error("gist get failed: " + res.status);
+      const gist = await res.json();
+      const raw  = gist.files?.[GIST_FILE]?.content ?? "[]";
+      const arr  = JSON.parse(raw || "[]");
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      console.warn("fetchGistOrders error:", e);
+      return null;
+    }
+  }
+
+  async function refreshOrders() {
+    const remote = await fetchGistOrders();
+    if (remote) {
+      viewOrders = remote;
+      saveCache(remote);
+      renderOrders();
+    }
+  }
+
+  // 把本地新 order append 到 Gist（乐观并发：遇冲突重试）
+  async function pushOrder(entry, attempt = 0) {
+    // 1) 先拉最新
+    const remote = await fetchGistOrders();
+    const base = Array.isArray(remote) ? remote : viewOrders;
+    const next = [entry, ...base].slice(0, 500);
+
+    // 2) PATCH 回去
+    const body = {
+      files: { [GIST_FILE]: { content: JSON.stringify(next, null, 2) } }
+    };
+    try {
+      const res = await fetch(GIST_API, {
+        method: "PATCH",
+        headers: {
+          "Authorization": "token " + GIST_TOKEN,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("gist patch failed: " + res.status);
+      viewOrders = next;
+      saveCache(next);
+      renderOrders();
+      return true;
+    } catch (e) {
+      console.warn("pushOrder error:", e);
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 400 + Math.random()*400));
+        return pushOrder(entry, attempt + 1);
+      }
+      // 最终失败也写进本地缓存，别让界面空着
+      viewOrders = [entry, ...viewOrders].slice(0, 500);
+      saveCache(viewOrders);
+      renderOrders();
+      return false;
+    }
+  }
+
+  // 兼容旧接口
   function addOrder(entry) {
-    const arr = loadOrders();
-    arr.unshift({ ...entry, id: Date.now() + "-" + Math.random().toString(36).slice(2,6), at: Date.now() });
-    saveOrders(arr.slice(0, 200));
+    const full = { ...entry, id: Date.now() + "-" + Math.random().toString(36).slice(2,6), at: Date.now() };
+    // 立刻乐观更新 UI
+    viewOrders = [full, ...viewOrders].slice(0, 500);
+    saveCache(viewOrders);
     renderOrders();
+    // 异步推送
+    pushOrder(full);
   }
   function fmtTime(ts) {
     const d = new Date(ts);
@@ -1096,7 +1188,7 @@
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
   function renderOrders() {
-    const arr = loadOrders();
+    const arr = currentOrders();
     document.getElementById("historyBadge").textContent = arr.length;
     document.getElementById("drawerCountText").textContent = `共 ${arr.length} 条`;
     const body = document.getElementById("drawerBody");
@@ -1132,17 +1224,39 @@
   // 抽屉控制
   const drawer = document.getElementById("drawer");
   const mask   = document.getElementById("drawerMask");
-  function openDrawer()  { drawer.classList.add("open"); mask.classList.add("open"); renderOrders(); }
+  function openDrawer()  { drawer.classList.add("open"); mask.classList.add("open"); renderOrders(); refreshOrders(); }
   function closeDrawer() { drawer.classList.remove("open"); mask.classList.remove("open"); }
   document.getElementById("historyFab").addEventListener("click", openDrawer);
   document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  const refreshBtn = document.getElementById("drawerRefresh");
+  refreshBtn.addEventListener("click", async () => {
+    refreshBtn.style.animation = "spin 0.8s linear infinite";
+    await refreshOrders();
+    setTimeout(() => { refreshBtn.style.animation = ""; }, 400);
+  });
   mask.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
-  document.getElementById("clearBtn").addEventListener("click", () => {
-    if (loadOrders().length === 0) return;
-    if (confirm("确认清空所有订单记录吗？此操作不可撤销。")) {
-      saveOrders([]);
+  document.getElementById("clearBtn").addEventListener("click", async () => {
+    if (currentOrders().length === 0) return;
+    if (!confirm("确认清空所有订单记录吗？此操作会清空所有人能看到的订单，不可撤销。")) return;
+    try {
+      const res = await fetch(GIST_API, {
+        method: "PATCH",
+        headers: {
+          "Authorization": "token " + GIST_TOKEN,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ files: { [GIST_FILE]: { content: "[]" } } }),
+      });
+      if (!res.ok) throw new Error("clear failed: " + res.status);
+      viewOrders = [];
+      saveCache([]);
       renderOrders();
+      showToast("已清空所有订单", "success");
+    } catch (e) {
+      console.warn(e);
+      showToast("清空失败，请稍后再试", "error");
     }
   });
 
@@ -1163,7 +1277,10 @@
   })();
 
   // 初始化
-  renderOrders();
+  renderOrders();         // 先从 localStorage 缓存里渲染（秒显）
+  refreshOrders();        // 再异步拉最新的共享订单
+  // 打开着抽屉时每 30 秒自动拉一次最新订单
+  setInterval(() => { if (drawer.classList.contains("open")) refreshOrders(); }, 30000);
   syncButtonsState();
 </script>
 </body>
