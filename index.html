@@ -1027,44 +1027,30 @@
     tick();
   }
 
-  // ===== 发送到企业微信（通用） =====
+  // ===== 发送到企业微信（只发一次，用 no-cors 避免浏览器误判重发） =====
   async function sendToWeCom(content) {
     const payload = { msgtype: "text", text: { content } };
     try {
-      // 用 text/plain 避免 CORS 预检；企业微信照样按 JSON 解析 body
-      const res = await fetch(WEBHOOK_URL, {
+      // 用 no-cors：无法读响应，但请求会送达一次且不会被浏览器 CORS 误判失败后兜底重发
+      await fetch(WEBHOOK_URL, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=UTF-8" },
         body: JSON.stringify(payload),
       });
-      let ok = res.ok;
-      try {
-        const data = await res.json();
-        ok = ok && (data.errcode === 0);
-      } catch (_) { /* 读不到响应就以 HTTP 状态为准 */ }
-      if (ok) return true;
-      throw new Error("server not ok");
-    } catch (err) {
-      // 兜底：no-cors 无法读响应，但请求会送达
-      try {
-        await fetch(WEBHOOK_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=UTF-8" },
-          body: JSON.stringify(payload),
-        });
-        return true;
-      } catch (e2) {
-        return false;
-      }
+      return true;
+    } catch (e) {
+      console.warn("sendToWeCom error:", e);
+      return false;
     }
   }
 
   function buildTodo(lines) {
+    // 纯中文+符号，不用 emoji，避免 PC 端企业微信渲染成花纹 / 乱码
     return (
       `你有一条待办，请及时查看\n` +
       `————————————\n` +
-      `💐 繁花许愿馆 新消息\n` +
+      `【繁花许愿馆】新订单\n` +
       lines.join("\n") +
       `\n时间：${new Date().toLocaleString("zh-CN", { hour12: false })}`
     );
@@ -1097,7 +1083,7 @@
     if (currentIndex < 0) { showToast("请先选一朵花呀 🌸", "error"); return; }
     const f = FLOWERS[currentIndex];
     const content = buildTodo([
-      `她想要的花：${f.emoji} ${f.name}`,
+      `她想要的花：${f.name}`,
       `花语：${f.meaning}`,
     ]);
     runSend(submitBtn, content, () => {
