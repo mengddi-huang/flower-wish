@@ -652,7 +652,53 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .order-meaning { font-size: 13px; color: var(--muted); letter-spacing: 1px; margin-top: 3px; }
-  .order-time { margin-top: 8px; font-size: 11px; color: var(--muted); letter-spacing: 1px; opacity: 0.75; }
+  .order-bottom {
+    margin-top: 10px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .order-time { font-size: 11px; color: var(--muted); letter-spacing: 1px; opacity: 0.75; }
+
+  /* 状态药丸 */
+  .status-pill {
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11px; letter-spacing: 1.5px;
+    font-weight: 800;
+    transition: transform 0.2s, box-shadow 0.3s, background 0.3s, color 0.3s, border-color 0.3s;
+    flex-shrink: 0;
+  }
+  .status-pill:hover:not(.saving) { transform: translateY(-1px); }
+  .status-pill:active:not(.saving) { transform: translateY(0) scale(0.97); }
+  .status-pill.pending {
+    background: rgba(255,106,26,0.14);
+    border: 1px solid rgba(255,106,26,0.5);
+    color: var(--acid-orange);
+    box-shadow: 0 0 16px rgba(255,106,26,0.2);
+  }
+  .status-pill.delivered {
+    background: rgba(198,255,46,0.14);
+    border: 1px solid rgba(198,255,46,0.55);
+    color: var(--acid-lime);
+    box-shadow: 0 0 18px rgba(198,255,46,0.3);
+  }
+  .status-pill.saving { pointer-events: none; opacity: 0.55; }
+  .status-pill .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 6px currentColor;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  .status-pill.saving .dot { animation: spin 0.8s linear infinite; border: 1.5px solid currentColor; background: transparent; box-shadow: none; }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%      { opacity: 1;   transform: scale(1.35); }
+  }
+  .order-item.delivered { opacity: 0.78; }
+  .order-item.delivered .order-emoji { filter: grayscale(0.2) drop-shadow(0 6px 24px rgba(198,255,46,0.35)); }
+
   .order-tag {
     position: absolute; top: 12px; right: 14px;
     font-size: 10px; letter-spacing: 1px;
@@ -1174,13 +1220,60 @@
 
   // 兼容旧接口
   function addOrder(entry) {
-    const full = { ...entry, id: Date.now() + "-" + Math.random().toString(36).slice(2,6), at: Date.now() };
+    const full = {
+      ...entry,
+      id: Date.now() + "-" + Math.random().toString(36).slice(2,6),
+      at: Date.now(),
+      status: "pending",
+    };
     // 立刻乐观更新 UI
     viewOrders = [full, ...viewOrders].slice(0, 500);
     saveCache(viewOrders);
     renderOrders();
-    // 异步推送
     pushOrder(full);
+  }
+
+  // 切换订单状态 pending <-> delivered
+  async function updateOrderStatus(id, newStatus, attempt = 0) {
+    const now = Date.now();
+    // 先本地乐观更新
+    viewOrders = viewOrders.map(o => o.id === id
+      ? { ...o, status: newStatus, deliveredAt: newStatus === "delivered" ? now : null }
+      : o);
+    saveCache(viewOrders);
+    renderOrders();
+
+    // 再基于 Gist 最新做权威更新
+    const remote = await fetchGistOrders();
+    const base = Array.isArray(remote) ? remote : viewOrders;
+    const next = base.map(o => o.id === id
+      ? { ...o, status: newStatus, deliveredAt: newStatus === "delivered" ? now : null }
+      : o);
+
+    try {
+      const res = await fetch(GIST_API, {
+        method: "PATCH",
+        headers: {
+          "Authorization": "token " + GIST_TOKEN,
+          "Accept": "application/vnd.github+json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ files: { [GIST_FILE]: { content: JSON.stringify(next, null, 2) } } }),
+      });
+      if (!res.ok) throw new Error("status patch failed: " + res.status);
+      viewOrders = next;
+      saveCache(next);
+      renderOrders();
+      return true;
+    } catch (e) {
+      console.warn("updateOrderStatus error:", e);
+      if (attempt < 2) {
+        await new Promise(r => setTimeout(r, 400 + Math.random()*400));
+        return updateOrderStatus(id, newStatus, attempt + 1);
+      }
+      showToast("状态同步失败，请稍后重试", "error");
+      return false;
+    }
   }
   function fmtTime(ts) {
     const d = new Date(ts);
@@ -1203,8 +1296,11 @@
     body.innerHTML = arr.map(o => {
       const tagCls = o.type === "custom" ? "custom" : "";
       const tagTxt = o.type === "custom" ? "特别指定" : "花园选中";
+      const status = o.status === "delivered" ? "delivered" : "pending";
+      const statusTxt = status === "delivered" ? "已送达" : "待送出";
+      const itemCls = status === "delivered" ? "order-item delivered" : "order-item";
       return `
-        <div class="order-item">
+        <div class="${itemCls}" data-id="${escapeHtml(o.id)}">
           <span class="order-tag ${tagCls}">${tagTxt}</span>
           <div class="order-top">
             <div class="order-emoji">${o.emoji || "🌷"}</div>
@@ -1213,7 +1309,12 @@
               ${o.meaning ? `<div class="order-meaning">“${escapeHtml(o.meaning)}”</div>` : ""}
             </div>
           </div>
-          <div class="order-time">${fmtTime(o.at)}</div>
+          <div class="order-bottom">
+            <div class="order-time">${fmtTime(o.at)}${o.deliveredAt ? ` · 送达 ${fmtTime(o.deliveredAt)}` : ""}</div>
+            <div class="status-pill ${status}" data-id="${escapeHtml(o.id)}" title="点击切换状态">
+              <span class="dot"></span>${statusTxt}
+            </div>
+          </div>
         </div>`;
     }).join("");
   }
@@ -1233,6 +1334,24 @@
     refreshBtn.style.animation = "spin 0.8s linear infinite";
     await refreshOrders();
     setTimeout(() => { refreshBtn.style.animation = ""; }, 400);
+  });
+
+  // ===== 抽屉内点击状态药丸：切换 待送出 <-> 已送达 =====
+  document.getElementById("drawerBody").addEventListener("click", async (e) => {
+    const pill = e.target.closest(".status-pill");
+    if (!pill) return;
+    if (pill.classList.contains("saving")) return;
+    const id = pill.getAttribute("data-id");
+    const isDelivered = pill.classList.contains("delivered");
+    const newStatus = isDelivered ? "pending" : "delivered";
+
+    pill.classList.add("saving");
+    const ok = await updateOrderStatus(id, newStatus);
+    if (ok && newStatus === "delivered") {
+      showToast("已标记为「已送达」🌿", "success");
+    } else if (ok && newStatus === "pending") {
+      showToast("已改回「待送出」", "success");
+    }
   });
   mask.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
