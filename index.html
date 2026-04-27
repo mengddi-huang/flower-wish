@@ -1062,7 +1062,7 @@
   <section class="wish-panel">
     <div class="identity-row">
       <span class="identity-label">你的名字</span>
-      <input class="identity-input" id="placedByInput" placeholder="留个称呼吧（不写就匿名）" maxlength="16" autocomplete="off" />
+      <input class="identity-input" id="placedByInput" placeholder="留个称呼吧（不写就当是张昳饱）" maxlength="16" autocomplete="off" />
     </div>
     <div class="wish-label">你挑中的这一朵</div>
     <div class="chosen-card" id="chosenCard">
@@ -1357,7 +1357,7 @@
   });
   function getPlacedBy() {
     const v = (placedByInput.value || "").trim();
-    return v || "匿名好友";
+    return v || "张昳饱";
   }
 
   // ===== 送出：选中的花 =====
@@ -1497,7 +1497,7 @@
       ...entry,
       id: now + "-" + Math.random().toString(36).slice(2,6),
       at: now,
-      placedBy: entry.placedBy || "匿名好友",
+      placedBy: entry.placedBy || "张昳饱",
       status: "pending",
       statusLog: [{ status: "pending", at: now }],
     };
@@ -1595,7 +1595,7 @@
     return arr.filter(o => {
       const s = getStatusOf(o);
       if (filterStatus !== "all" && s !== filterStatus) return false;
-      const by = (o.placedBy || "匿名好友");
+      const by = (o.placedBy || "张昳饱");
       if (filterPlacedBy !== "all" && by !== filterPlacedBy) return false;
       return true;
     });
@@ -1607,7 +1607,7 @@
     const placedBys = new Set();
     arr.forEach(o => {
       counts[getStatusOf(o)]++;
-      placedBys.add(o.placedBy || "匿名好友");
+      placedBys.add(o.placedBy || "张昳饱");
     });
     Object.keys(counts).forEach(k => {
       const el = document.querySelector(`[data-cnt="${k}"]`);
@@ -1674,7 +1674,7 @@
       const statusTxt = STATUS_TXT[status];
       const itemCls = `order-item ${status}`;
 
-      const placedBy = escapeHtml(o.placedBy || "匿名好友");
+      const placedBy = escapeHtml(o.placedBy || "张昳饱");
 
       // 时间行
       let timeStr = fmtTime(o.at);
