@@ -494,6 +494,31 @@
     background: transparent;
   }
 
+  /* 你的名字输入 */
+  .identity-row {
+    display: flex; gap: 12px; align-items: center;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .identity-row:focus-within {
+    border-color: var(--acid-cyan);
+    box-shadow: 0 0 0 3px rgba(0,255,225,0.15);
+  }
+  .identity-label {
+    color: var(--muted); font-size: 13px; letter-spacing: 1.5px;
+    white-space: nowrap;
+  }
+  .identity-input {
+    flex: 1;
+    background: transparent; border: none; outline: none;
+    color: var(--text); font-size: 15px; letter-spacing: 1px;
+    font-family: inherit;
+  }
+
   /* 字数计数 */
   .counter {
     text-align: right;
@@ -655,6 +680,205 @@
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .order-meaning { font-size: 13px; color: var(--muted); letter-spacing: 1px; margin-top: 3px; }
+  .order-by {
+    margin-top: 6px;
+    font-size: 12px; color: var(--muted); letter-spacing: 1px;
+  }
+  .order-by .name {
+    color: var(--text); font-weight: 700;
+    background: linear-gradient(90deg, var(--acid-lime), var(--acid-cyan));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  /* 配送/驳回信息条 */
+  .order-info-row {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 12.5px; line-height: 1.55;
+    color: var(--text);
+    background: rgba(0,255,225,0.06);
+    border-left: 3px solid var(--acid-cyan);
+    word-break: break-word;
+  }
+  .order-info-row.delivered { background: rgba(198,255,46,0.06); border-left-color: var(--acid-lime); }
+  .order-info-row.reject    { background: rgba(255,59,92,0.07);  border-left-color: #ff3b5c; }
+  .order-info-row .label {
+    display: inline-block; font-size: 10px; letter-spacing: 1px;
+    padding: 2px 8px; border-radius: 999px;
+    margin-right: 8px;
+    background: rgba(255,255,255,0.08);
+    color: var(--muted);
+  }
+
+  /* 操作按钮 */
+  .order-actions {
+    display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;
+  }
+  .action-btn {
+    padding: 6px 14px;
+    font-size: 11px; letter-spacing: 1.5px; font-weight: 800;
+    border-radius: 999px;
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text);
+    transition: transform 0.2s, box-shadow 0.3s, border-color 0.3s, background 0.3s;
+    font-family: inherit;
+  }
+  .action-btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .action-btn.next {
+    border-color: rgba(0,255,225,0.55);
+    background: rgba(0,255,225,0.10);
+    color: var(--acid-cyan);
+    box-shadow: 0 0 14px rgba(0,255,225,0.2);
+  }
+  .action-btn.next:hover { background: rgba(0,255,225,0.18); box-shadow: 0 0 22px rgba(0,255,225,0.4); }
+  .action-btn.deliver {
+    border-color: rgba(198,255,46,0.55);
+    background: rgba(198,255,46,0.10);
+    color: var(--acid-lime);
+    box-shadow: 0 0 14px rgba(198,255,46,0.2);
+  }
+  .action-btn.deliver:hover { background: rgba(198,255,46,0.18); box-shadow: 0 0 22px rgba(198,255,46,0.4); }
+  .action-btn.reject {
+    border-color: rgba(255,59,92,0.55);
+    color: #ff3b5c;
+  }
+  .action-btn.reject:hover { background: rgba(255,59,92,0.12); }
+
+  /* 筛选区 */
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 12px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .filter-bar.with-by { padding-top: 0; }
+  .filter-chip {
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px; letter-spacing: 1px; font-weight: 700;
+    cursor: pointer;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    transition: all 0.25s;
+    user-select: none;
+  }
+  .filter-chip:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+  .filter-chip.active {
+    background:
+      linear-gradient(#0a0a12, #0a0a12) padding-box,
+      linear-gradient(135deg, var(--acid-cyan), var(--acid-magenta)) border-box;
+    border: 1.5px solid transparent;
+    color: var(--text);
+    box-shadow: 0 0 16px rgba(255,47,209,0.35);
+  }
+  .filter-chip .cnt { opacity: 0.5; margin-left: 4px; font-weight: 500; }
+  .filter-chip.active .cnt { opacity: 0.8; }
+
+  .filter-by {
+    flex: 1; min-width: 140px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--text);
+    border-radius: 12px;
+    padding: 7px 12px;
+    font-size: 13px; letter-spacing: 1px;
+    font-family: inherit;
+    cursor: pointer;
+    outline: none;
+  }
+  .filter-by option { background: #0a0a12; color: var(--text); }
+  .filter-by:focus { border-color: var(--acid-cyan); }
+
+  /* 状态切换/驳回输入弹窗 */
+  .action-modal-mask {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(8px);
+    z-index: 110;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .action-modal-mask.open { opacity: 1; pointer-events: auto; }
+  .action-modal {
+    width: 100%; max-width: 460px;
+    border-radius: 18px;
+    padding: 26px 24px 22px;
+    background:
+      linear-gradient(160deg, #14141e, #07070b) padding-box,
+      linear-gradient(135deg, var(--acid-cyan), var(--acid-magenta)) border-box;
+    border: 1.5px solid transparent;
+    box-shadow: 0 30px 80px -20px rgba(255,47,209,0.4);
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.35s cubic-bezier(.2,.8,.2,1);
+  }
+  .action-modal-mask.open .action-modal { transform: scale(1) translateY(0); }
+  .action-modal h3 {
+    font-size: 17px; font-weight: 900; letter-spacing: 3px;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, var(--acid-cyan), var(--acid-magenta));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .action-modal h3.reject {
+    background: linear-gradient(90deg, #ff3b5c, #ff6a1a);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .action-modal .modal-desc {
+    color: var(--muted); font-size: 12.5px; letter-spacing: 1px;
+    margin-bottom: 14px; line-height: 1.55;
+  }
+  .action-modal textarea {
+    width: 100%; min-height: 96px;
+    background: rgba(0,0,0,0.45);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-family: inherit; font-size: 14px;
+    line-height: 1.55;
+    resize: vertical;
+    outline: none;
+  }
+  .action-modal textarea:focus {
+    border-color: var(--acid-cyan);
+    box-shadow: 0 0 0 3px rgba(0,255,225,0.18);
+  }
+  .action-modal-buttons {
+    margin-top: 16px;
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .action-modal-buttons button {
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-size: 13px; font-weight: 800; letter-spacing: 2px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    border: none;
+  }
+  .action-modal-buttons .cancel {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: var(--muted);
+  }
+  .action-modal-buttons .cancel:hover { color: var(--text); border-color: var(--text); }
+  .action-modal-buttons .confirm {
+    background: linear-gradient(135deg, var(--acid-cyan), var(--acid-magenta));
+    color: #050508;
+    box-shadow: 0 8px 24px -6px rgba(255,47,209,0.55);
+  }
+  .action-modal-buttons .confirm.reject {
+    background: linear-gradient(135deg, #ff3b5c, #ff6a1a);
+    color: #fff;
+    box-shadow: 0 8px 24px -6px rgba(255,59,92,0.55);
+  }
+  .action-modal-buttons .confirm:hover { transform: translateY(-1px); }
+
   .order-bottom {
     margin-top: 10px;
     display: flex; justify-content: space-between; align-items: center; gap: 10px;
@@ -675,17 +899,30 @@
   }
   .status-pill:hover:not(.saving) { transform: translateY(-1px); }
   .status-pill:active:not(.saving) { transform: translateY(0) scale(0.97); }
+  .status-pill { cursor: default; }
   .status-pill.pending {
     background: rgba(255,106,26,0.14);
     border: 1px solid rgba(255,106,26,0.5);
     color: var(--acid-orange);
     box-shadow: 0 0 16px rgba(255,106,26,0.2);
   }
+  .status-pill.in_transit {
+    background: rgba(0,255,225,0.12);
+    border: 1px solid rgba(0,255,225,0.55);
+    color: var(--acid-cyan);
+    box-shadow: 0 0 18px rgba(0,255,225,0.3);
+  }
   .status-pill.delivered {
     background: rgba(198,255,46,0.14);
     border: 1px solid rgba(198,255,46,0.55);
     color: var(--acid-lime);
     box-shadow: 0 0 18px rgba(198,255,46,0.3);
+  }
+  .status-pill.rejected {
+    background: rgba(255,59,92,0.12);
+    border: 1px solid rgba(255,59,92,0.55);
+    color: #ff3b5c;
+    box-shadow: 0 0 16px rgba(255,59,92,0.25);
   }
   .status-pill.saving { pointer-events: none; opacity: 0.55; }
   .status-pill .dot {
@@ -701,6 +938,8 @@
   }
   .order-item.delivered { opacity: 0.78; }
   .order-item.delivered .order-emoji { filter: grayscale(0.2) drop-shadow(0 6px 24px rgba(198,255,46,0.35)); }
+  .order-item.rejected { opacity: 0.6; }
+  .order-item.rejected .order-emoji { filter: grayscale(0.7) drop-shadow(0 0 12px rgba(255,59,92,0.3)); }
 
   .order-tag {
     position: absolute; top: 12px; right: 14px;
@@ -792,6 +1031,18 @@
       <button class="drawer-close" id="drawerClose" aria-label="关闭">×</button>
     </div>
   </div>
+  <div class="filter-bar" id="filterStatus">
+    <div class="filter-chip active" data-status="all">全部 <span class="cnt" data-cnt="all">0</span></div>
+    <div class="filter-chip" data-status="pending">待送出 <span class="cnt" data-cnt="pending">0</span></div>
+    <div class="filter-chip" data-status="in_transit">配送中 <span class="cnt" data-cnt="in_transit">0</span></div>
+    <div class="filter-chip" data-status="delivered">已送达 <span class="cnt" data-cnt="delivered">0</span></div>
+    <div class="filter-chip" data-status="rejected">已驳回 <span class="cnt" data-cnt="rejected">0</span></div>
+  </div>
+  <div class="filter-bar with-by">
+    <select class="filter-by" id="filterBy">
+      <option value="all">全部下单人</option>
+    </select>
+  </div>
   <div class="drawer-body" id="drawerBody"></div>
   <div class="drawer-footer">
     <span id="drawerCountText">共 0 条</span>
@@ -809,6 +1060,10 @@
 
   <!-- ===== 已选中的花语展示 + 送出 ===== -->
   <section class="wish-panel">
+    <div class="identity-row">
+      <span class="identity-label">你的名字</span>
+      <input class="identity-input" id="placedByInput" placeholder="留个称呼吧（不写就匿名）" maxlength="16" autocomplete="off" />
+    </div>
     <div class="wish-label">你挑中的这一朵</div>
     <div class="chosen-card" id="chosenCard">
       <div class="chosen-empty">点一朵上面的花，就告诉我你想要她 ~</div>
@@ -836,11 +1091,24 @@
     </button>
   </section>
 
-  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真 · <span style="opacity:0.6;letter-spacing:1px;">v3 · no-dup</span></footer>
+  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真 · <span style="opacity:0.6;letter-spacing:1px;">v4 · 状态机</span></footer>
 </div>
 
 <div class="toast" id="toast"></div>
 <canvas class="celebration" id="celebration"></canvas>
+
+<!-- 状态切换 / 驳回 输入弹窗 -->
+<div class="action-modal-mask" id="actionModalMask">
+  <div class="action-modal">
+    <h3 id="actionModalTitle">标题</h3>
+    <div class="modal-desc" id="actionModalDesc">说明</div>
+    <textarea id="actionModalInput" placeholder=""></textarea>
+    <div class="action-modal-buttons">
+      <button class="cancel" id="actionModalCancel">取消</button>
+      <button class="confirm" id="actionModalConfirm">确认</button>
+    </div>
+  </div>
+</div>
 
 <script>
   // ===== 花的数据 =====
@@ -1080,17 +1348,31 @@
     document.getElementById("wishBtn").disabled   = (document.getElementById("wishInput").value.trim() === "");
   }
 
+  // ===== 「你的名字」：本地记忆，下单时带上 =====
+  const PLACED_BY_KEY = "flower_wish_placed_by";
+  const placedByInput = document.getElementById("placedByInput");
+  placedByInput.value = (localStorage.getItem(PLACED_BY_KEY) || "").slice(0, 16);
+  placedByInput.addEventListener("input", () => {
+    try { localStorage.setItem(PLACED_BY_KEY, placedByInput.value.trim().slice(0, 16)); } catch {}
+  });
+  function getPlacedBy() {
+    const v = (placedByInput.value || "").trim();
+    return v || "匿名好友";
+  }
+
   // ===== 送出：选中的花 =====
   const submitBtn = document.getElementById("submitBtn");
   submitBtn.addEventListener("click", () => {
     if (currentIndex < 0) { showToast("请先选一朵花呀 🌸", "error"); return; }
     const f = FLOWERS[currentIndex];
+    const placedBy = getPlacedBy();
     const content = buildTodo([
+      `下单人：${placedBy}`,
       `她想要的花：${f.name}`,
       `花语：${f.meaning}`,
     ]);
     runSend(submitBtn, content, () => {
-      addOrder({ type: "preset", emoji: f.emoji, name: f.name, meaning: f.meaning });
+      addOrder({ type: "preset", emoji: f.emoji, name: f.name, meaning: f.meaning, placedBy });
       currentIndex = -1;
       document.querySelectorAll(".flower-card.selected").forEach(c => c.classList.remove("selected"));
       renderChosen();
@@ -1111,12 +1393,14 @@
   wishBtn.addEventListener("click", () => {
     const flower = wishInput.value.trim();
     if (!flower) { showToast("先写下你想要的花吧 ✍️", "error"); return; }
+    const placedBy = getPlacedBy();
     const content = buildTodo([
+      `下单人：${placedBy}`,
       `她想要的花：${flower}`,
       `（上面列表中没有，需单独去买）`,
     ]);
     runSend(wishBtn, content, () => {
-      addOrder({ type: "custom", emoji: "✨", name: flower });
+      addOrder({ type: "custom", emoji: "✨", name: flower, placedBy });
       wishInput.value = "";
       wishCount.textContent = "0";
     });
@@ -1207,37 +1491,66 @@
     }
   }
 
-  // 兼容旧接口
   function addOrder(entry) {
+    const now = Date.now();
     const full = {
       ...entry,
-      id: Date.now() + "-" + Math.random().toString(36).slice(2,6),
-      at: Date.now(),
+      id: now + "-" + Math.random().toString(36).slice(2,6),
+      at: now,
+      placedBy: entry.placedBy || "匿名好友",
       status: "pending",
+      statusLog: [{ status: "pending", at: now }],
     };
-    // 立刻乐观更新 UI
     viewOrders = [full, ...viewOrders].slice(0, 500);
     saveCache(viewOrders);
     renderOrders();
     pushOrder(full);
   }
 
-  // 切换订单状态 pending <-> delivered
-  async function updateOrderStatus(id, newStatus, attempt = 0) {
+  // 状态机：定义可前向到达的状态
+  // pending: 可去 in_transit / delivered / rejected
+  // in_transit: 可去 delivered / rejected
+  // delivered / rejected: 终态，不可再变
+  const STATUS_TXT = {
+    pending: "待送出",
+    in_transit: "配送中",
+    delivered: "已送达",
+    rejected: "已驳回",
+  };
+  function canTransition(from, to) {
+    if (from === to) return false;
+    if (from === "delivered" || from === "rejected") return false;
+    if (from === "pending")    return to === "in_transit" || to === "delivered" || to === "rejected";
+    if (from === "in_transit") return to === "delivered" || to === "rejected";
+    return false;
+  }
+
+  async function transitionOrder(id, newStatus, info = "", attempt = 0) {
     const now = Date.now();
-    // 先本地乐观更新
-    viewOrders = viewOrders.map(o => o.id === id
-      ? { ...o, status: newStatus, deliveredAt: newStatus === "delivered" ? now : null }
-      : o);
+    const target = viewOrders.find(o => o.id === id);
+    if (!target) return false;
+    const cur = target.status || "pending";
+    if (!canTransition(cur, newStatus)) {
+      showToast("当前状态不能再变了哦", "error");
+      return false;
+    }
+    const apply = (o) => {
+      const log = Array.isArray(o.statusLog) ? o.statusLog.slice() : [{ status: o.status || "pending", at: o.at || now }];
+      log.push({ status: newStatus, at: now, info: info || "" });
+      const patch = { status: newStatus, statusLog: log };
+      if (newStatus === "in_transit") patch.deliveryInfo = info || "";
+      if (newStatus === "delivered")  patch.deliveredAt = now, patch.deliveredNote = info || "";
+      if (newStatus === "rejected")   patch.rejectedAt  = now, patch.rejectReason = info || "";
+      return { ...o, ...patch };
+    };
+
+    viewOrders = viewOrders.map(o => o.id === id ? apply(o) : o);
     saveCache(viewOrders);
     renderOrders();
 
-    // 再基于 Gist 最新做权威更新
     const remote = await fetchGistOrders();
     const base = Array.isArray(remote) ? remote : viewOrders;
-    const next = base.map(o => o.id === id
-      ? { ...o, status: newStatus, deliveredAt: newStatus === "delivered" ? now : null }
-      : o);
+    const next = base.map(o => o.id === id ? apply(o) : o);
 
     try {
       const res = await fetch(GIST_API, {
@@ -1255,10 +1568,10 @@
       renderOrders();
       return true;
     } catch (e) {
-      console.warn("updateOrderStatus error:", e);
+      console.warn("transitionOrder error:", e);
       if (attempt < 2) {
         await new Promise(r => setTimeout(r, 400 + Math.random()*400));
-        return updateOrderStatus(id, newStatus, attempt + 1);
+        return transitionOrder(id, newStatus, info, attempt + 1);
       }
       showToast("状态同步失败，请稍后重试", "error");
       return false;
@@ -1269,12 +1582,75 @@
     const pad = (n) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
-  function renderOrders() {
+  // ===== 筛选状态 =====
+  let filterStatus = "all";
+  let filterPlacedBy = "all";
+
+  function getStatusOf(o) {
+    const s = o.status || "pending";
+    return ["pending","in_transit","delivered","rejected"].includes(s) ? s : "pending";
+  }
+
+  function applyFilters(arr) {
+    return arr.filter(o => {
+      const s = getStatusOf(o);
+      if (filterStatus !== "all" && s !== filterStatus) return false;
+      const by = (o.placedBy || "匿名好友");
+      if (filterPlacedBy !== "all" && by !== filterPlacedBy) return false;
+      return true;
+    });
+  }
+
+  function refreshFilterChrome() {
     const arr = currentOrders();
-    document.getElementById("historyBadge").textContent = arr.length;
-    document.getElementById("drawerCountText").textContent = `共 ${arr.length} 条`;
+    const counts = { all: arr.length, pending: 0, in_transit: 0, delivered: 0, rejected: 0 };
+    const placedBys = new Set();
+    arr.forEach(o => {
+      counts[getStatusOf(o)]++;
+      placedBys.add(o.placedBy || "匿名好友");
+    });
+    Object.keys(counts).forEach(k => {
+      const el = document.querySelector(`[data-cnt="${k}"]`);
+      if (el) el.textContent = counts[k];
+    });
+
+    // 下单人下拉
+    const sel = document.getElementById("filterBy");
+    const cur = filterPlacedBy;
+    const list = Array.from(placedBys).sort((a,b) => a.localeCompare(b, "zh-CN"));
+    sel.innerHTML =
+      `<option value="all">全部下单人（${arr.length}）</option>` +
+      list.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
+    sel.value = list.includes(cur) ? cur : "all";
+    if (sel.value === "all") filterPlacedBy = "all";
+  }
+
+  function nextActions(status) {
+    if (status === "pending")    return [
+      { to: "in_transit", cls: "next",    label: "→ 配送中" },
+      { to: "delivered",  cls: "deliver", label: "✓ 已送达" },
+      { to: "rejected",   cls: "reject",  label: "✕ 驳回" },
+    ];
+    if (status === "in_transit") return [
+      { to: "delivered", cls: "deliver", label: "✓ 已送达" },
+      { to: "rejected",  cls: "reject",  label: "✕ 驳回" },
+    ];
+    return [];
+  }
+
+  function renderOrders() {
+    const all = currentOrders();
+    document.getElementById("historyBadge").textContent = all.length;
+    refreshFilterChrome();
+
+    const arr = applyFilters(all);
+    document.getElementById("drawerCountText").textContent =
+      (filterStatus === "all" && filterPlacedBy === "all")
+        ? `共 ${all.length} 条`
+        : `筛选后 ${arr.length} / 共 ${all.length}`;
+
     const body = document.getElementById("drawerBody");
-    if (arr.length === 0) {
+    if (all.length === 0) {
       body.innerHTML = `
         <div class="order-empty">
           <div class="big">🌱</div>
@@ -1282,12 +1658,55 @@
         </div>`;
       return;
     }
+    if (arr.length === 0) {
+      body.innerHTML = `
+        <div class="order-empty">
+          <div class="big">🔍</div>
+          这个筛选下没有订单，<br/>换个条件试试 ~
+        </div>`;
+      return;
+    }
+
     body.innerHTML = arr.map(o => {
       const tagCls = o.type === "custom" ? "custom" : "";
       const tagTxt = o.type === "custom" ? "特别指定" : "花园选中";
-      const status = o.status === "delivered" ? "delivered" : "pending";
-      const statusTxt = status === "delivered" ? "已送达" : "待送出";
-      const itemCls = status === "delivered" ? "order-item delivered" : "order-item";
+      const status = getStatusOf(o);
+      const statusTxt = STATUS_TXT[status];
+      const itemCls = `order-item ${status}`;
+
+      const placedBy = escapeHtml(o.placedBy || "匿名好友");
+
+      // 时间行
+      let timeStr = fmtTime(o.at);
+      if (status === "delivered" && o.deliveredAt) timeStr += ` · 送达 ${fmtTime(o.deliveredAt)}`;
+      if (status === "rejected"  && o.rejectedAt)  timeStr += ` · 驳回 ${fmtTime(o.rejectedAt)}`;
+
+      // 配送/送达/驳回 信息条
+      const infoParts = [];
+      if (o.deliveryInfo) {
+        infoParts.push(
+          `<div class="order-info-row"><span class="label">配送</span>${escapeHtml(o.deliveryInfo)}</div>`
+        );
+      }
+      if (status === "delivered" && o.deliveredNote) {
+        infoParts.push(
+          `<div class="order-info-row delivered"><span class="label">送达备注</span>${escapeHtml(o.deliveredNote)}</div>`
+        );
+      }
+      if (status === "rejected" && o.rejectReason) {
+        infoParts.push(
+          `<div class="order-info-row reject"><span class="label">驳回原因</span>${escapeHtml(o.rejectReason)}</div>`
+        );
+      }
+
+      // 操作按钮
+      const acts = nextActions(status);
+      const actionsHtml = acts.length
+        ? `<div class="order-actions">${acts.map(a =>
+            `<button class="action-btn ${a.cls}" data-id="${escapeHtml(o.id)}" data-to="${a.to}">${a.label}</button>`
+          ).join("")}</div>`
+        : "";
+
       return `
         <div class="${itemCls}" data-id="${escapeHtml(o.id)}">
           <span class="order-tag ${tagCls}">${tagTxt}</span>
@@ -1296,14 +1715,17 @@
             <div>
               <div class="order-name">${escapeHtml(o.name)}</div>
               ${o.meaning ? `<div class="order-meaning">“${escapeHtml(o.meaning)}”</div>` : ""}
+              <div class="order-by">下单人：<span class="name">${placedBy}</span></div>
             </div>
           </div>
+          ${infoParts.join("")}
           <div class="order-bottom">
-            <div class="order-time">${fmtTime(o.at)}${o.deliveredAt ? ` · 送达 ${fmtTime(o.deliveredAt)}` : ""}</div>
-            <div class="status-pill ${status}" data-id="${escapeHtml(o.id)}" title="点击切换状态">
+            <div class="order-time">${timeStr}</div>
+            <div class="status-pill ${status}">
               <span class="dot"></span>${statusTxt}
             </div>
           </div>
+          ${actionsHtml}
         </div>`;
     }).join("");
   }
@@ -1325,22 +1747,121 @@
     setTimeout(() => { refreshBtn.style.animation = ""; }, 400);
   });
 
-  // ===== 抽屉内点击状态药丸：切换 待送出 <-> 已送达 =====
-  document.getElementById("drawerBody").addEventListener("click", async (e) => {
-    const pill = e.target.closest(".status-pill");
-    if (!pill) return;
-    if (pill.classList.contains("saving")) return;
-    const id = pill.getAttribute("data-id");
-    const isDelivered = pill.classList.contains("delivered");
-    const newStatus = isDelivered ? "pending" : "delivered";
+  // ===== 模态框：让你输入配送/送达/驳回信息 =====
+  const modalMask    = document.getElementById("actionModalMask");
+  const modalTitle   = document.getElementById("actionModalTitle");
+  const modalDesc    = document.getElementById("actionModalDesc");
+  const modalInput   = document.getElementById("actionModalInput");
+  const modalConfirm = document.getElementById("actionModalConfirm");
+  const modalCancel  = document.getElementById("actionModalCancel");
 
-    pill.classList.add("saving");
-    const ok = await updateOrderStatus(id, newStatus);
-    if (ok && newStatus === "delivered") {
-      showToast("已标记为「已送达」🌿", "success");
-    } else if (ok && newStatus === "pending") {
-      showToast("已改回「待送出」", "success");
+  function openActionModal({ title, desc, placeholder, confirmLabel, danger, optional }) {
+    return new Promise((resolve) => {
+      modalTitle.textContent = title;
+      modalDesc.textContent  = desc;
+      modalInput.value = "";
+      modalInput.placeholder = placeholder || "";
+      modalConfirm.textContent = confirmLabel || "确认";
+      modalTitle.classList.toggle("reject", !!danger);
+      modalConfirm.classList.toggle("reject", !!danger);
+
+      modalMask.classList.add("open");
+      setTimeout(() => modalInput.focus(), 80);
+
+      const cleanup = () => {
+        modalMask.classList.remove("open");
+        modalConfirm.removeEventListener("click", onOk);
+        modalCancel.removeEventListener("click", onCancel);
+        modalMask.removeEventListener("click", onMask);
+        modalInput.removeEventListener("keydown", onKey);
+      };
+      const onOk = () => {
+        const v = modalInput.value.trim();
+        if (!v && !optional) {
+          modalInput.focus();
+          modalInput.style.borderColor = "#ff3b5c";
+          setTimeout(() => { modalInput.style.borderColor = ""; }, 800);
+          return;
+        }
+        cleanup(); resolve(v);
+      };
+      const onCancel = () => { cleanup(); resolve(null); };
+      const onMask = (e) => { if (e.target === modalMask) onCancel(); };
+      const onKey = (e) => {
+        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) onOk();
+        else if (e.key === "Escape") onCancel();
+      };
+      modalConfirm.addEventListener("click", onOk);
+      modalCancel.addEventListener("click", onCancel);
+      modalMask.addEventListener("click", onMask);
+      modalInput.addEventListener("keydown", onKey);
+    });
+  }
+
+  // ===== 抽屉内点击操作按钮：触发状态切换 =====
+  document.getElementById("drawerBody").addEventListener("click", async (e) => {
+    const btn = e.target.closest(".action-btn");
+    if (!btn || btn.disabled) return;
+    const id = btn.getAttribute("data-id");
+    const to = btn.getAttribute("data-to");
+    const order = currentOrders().find(o => o.id === id);
+    if (!order) return;
+
+    let info = "";
+    if (to === "in_transit") {
+      info = await openActionModal({
+        title: "标记为配送中",
+        desc: "填一下配送信息，比如：顺丰 SF12345，预计今天 17:00 送达",
+        placeholder: "例：顺丰 SF1234567 / 预计 17:00 / 美团跑腿小哥手机 138...",
+        confirmLabel: "标记配送中",
+      });
+    } else if (to === "delivered") {
+      info = await openActionModal({
+        title: "标记为已送达",
+        desc: "可以加点送达备注，比如「本人签收 / 放门口 / 接花的人很开心」（可不填）",
+        placeholder: "送达备注（可选）",
+        confirmLabel: "确认送达",
+        optional: true,
+      });
+    } else if (to === "rejected") {
+      info = await openActionModal({
+        title: "驳回这单",
+        desc: "写明驳回原因，让下单人知道发生了什么",
+        placeholder: "例：这种花最近没货 / 地址写错了 / 其他原因…",
+        confirmLabel: "确认驳回",
+        danger: true,
+      });
     }
+    if (info === null) return; // 取消
+
+    btn.disabled = true;
+    const ok = await transitionOrder(id, to, info || "");
+    if (ok) {
+      const msg = {
+        in_transit: "已转入「配送中」🚚",
+        delivered:  "已标记「已送达」🌿",
+        rejected:   "已驳回这单",
+      }[to];
+      showToast(msg, "success");
+    } else {
+      btn.disabled = false;
+    }
+  });
+
+  // ===== 状态筛选 chips =====
+  document.getElementById("filterStatus").addEventListener("click", (e) => {
+    const chip = e.target.closest(".filter-chip");
+    if (!chip) return;
+    document.querySelectorAll("#filterStatus .filter-chip").forEach(c => c.classList.remove("active"));
+    chip.classList.add("active");
+    filterStatus = chip.getAttribute("data-status");
+    renderOrders();
+  });
+
+  // ===== 下单人筛选 =====
+  document.getElementById("filterBy").addEventListener("change", (e) => {
+    filterPlacedBy = e.target.value || "all";
+    renderOrders();
   });
   mask.addEventListener("click", closeDrawer);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
