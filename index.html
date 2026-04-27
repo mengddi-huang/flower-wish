@@ -89,24 +89,85 @@
     100% { transform: translate(-6%,7%)  scale(0.95) rotate(240deg); }
   }
 
-  /* 跟随鼠标的液态光斑 */
-  .cursor-glow {
+  /* 跟随鼠标的玫瑰花苞 */
+  .rose-cursor {
     position: fixed;
-    width: 520px; height: 520px;
-    left: 50%; top: 50%;
-    margin: -260px 0 0 -260px;
+    left: 0; top: 0;
+    pointer-events: none;
+    z-index: 70;
+    will-change: transform;
+    width: 0; height: 0;
+  }
+  .rose-cursor .halo {
+    position: absolute;
+    left: 0; top: 0;
+    width: 90px; height: 90px;
+    margin: -45px 0 0 -45px;
     border-radius: 50%;
     background: radial-gradient(closest-side,
-                rgba(255,180,220,0.55),
-                rgba(255,225,170,0.35) 40%,
-                transparent 70%);
-    filter: blur(30px);
-    pointer-events: none;
-    z-index: 1;
+                rgba(255,120,170,0.45),
+                rgba(255,180,140,0.25) 50%,
+                transparent 75%);
+    filter: blur(8px);
+    opacity: 0.35;
+    transform: scale(0.55);
+    transition: opacity 0.5s, transform 0.6s cubic-bezier(.2,.8,.2,1);
     mix-blend-mode: multiply;
-    transition: transform 0.18s cubic-bezier(.2,.8,.2,1);
+  }
+  .rose-cursor .bud {
+    position: absolute;
+    left: 0; top: 0;
+    font-size: 28px;
+    line-height: 1;
+    transform: translate(-50%, -50%) scale(0.62) rotate(-30deg);
+    transform-origin: center center;
+    filter: drop-shadow(0 4px 10px rgba(220, 30, 70, 0.45))
+            drop-shadow(0 0 6px rgba(255, 120, 150, 0.5));
+    transition: transform 0.7s cubic-bezier(.2,.8,.2,1),
+                filter 0.5s;
     will-change: transform;
   }
+  .rose-cursor .petal-ring {
+    position: absolute;
+    left: 0; top: 0;
+    width: 0; height: 0;
+    pointer-events: none;
+  }
+  .rose-cursor .petal-ring .pp {
+    position: absolute;
+    left: 0; top: 0;
+    font-size: 14px;
+    line-height: 1;
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--a, 0deg)) translateY(0) rotate(calc(-1 * var(--a, 0deg)));
+    filter: drop-shadow(0 2px 6px rgba(255, 80, 130, 0.5));
+  }
+  /* 绽放状态：halo 放大 + 花苞放大正立 + 花瓣四散展开 */
+  .rose-cursor.bloom .halo {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  .rose-cursor.bloom .bud {
+    animation: budBloom 1.0s cubic-bezier(.2,.8,.2,1) forwards;
+    filter: drop-shadow(0 6px 18px rgba(220, 30, 70, 0.55))
+            drop-shadow(0 0 24px rgba(255, 130, 170, 0.5));
+  }
+  @keyframes budBloom {
+    0%   { transform: translate(-50%, -50%) scale(0.62) rotate(-30deg); }
+    45%  { transform: translate(-50%, -50%) scale(1.95)  rotate(14deg); }
+    100% { transform: translate(-50%, -50%) scale(1.6)  rotate(6deg); }
+  }
+  .rose-cursor.bloom .petal-ring .pp {
+    animation: petalUnfurl 0.95s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes petalUnfurl {
+    0%   { opacity: 0; transform: translate(-50%, -50%) rotate(var(--a)) translateY(0)   rotate(calc(-1 * var(--a))); }
+    35%  { opacity: 1; }
+    100% { opacity: 0.85;
+           transform: translate(-50%, -50%) rotate(var(--a)) translateY(-36px) rotate(calc(-1 * var(--a))) scale(1.05); }
+  }
+  /* 兼容旧选择器：cursor-glow 不再使用，但保留以防漏处理 */
+  .cursor-glow { display: none !important; }
 
   /* 扫描网格（极淡） */
   .scan-grid {
@@ -1086,8 +1147,12 @@
 </div>
 <!-- 扫描网格 -->
 <div class="scan-grid"></div>
-<!-- 跟随鼠标的液态光斑 -->
-<div class="cursor-glow" id="cursorGlow"></div>
+<!-- 跟随鼠标的玫瑰花苞（停留绽放） -->
+<div class="rose-cursor" id="roseCursor">
+  <span class="halo"></span>
+  <span class="bud">🌹</span>
+  <span class="petal-ring" id="rosePetals"></span>
+</div>
 <!-- 颗粒噪声覆盖 -->
 <div class="grain"></div>
 <!-- 落花 -->
@@ -1169,7 +1234,7 @@
     </button>
   </section>
 
-  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真 · <span style="opacity:0.6;letter-spacing:1px;">v5.1 · 点击落玫瑰</span></footer>
+  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真 · <span style="opacity:0.6;letter-spacing:1px;">v5.2 · 鼠标玫瑰花苞</span></footer>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1967,75 +2032,63 @@
     }
   });
 
-  // ===== 跟随鼠标的液态光斑 =====
-  const cursorGlow = document.getElementById("cursorGlow");
-  let glowX = innerWidth / 2, glowY = innerHeight / 2;
-  let targetX = glowX, targetY = glowY;
-  addEventListener("pointermove", (e) => {
-    targetX = e.clientX;
-    targetY = e.clientY;
-  });
-  (function animateGlow() {
-    glowX += (targetX - glowX) * 0.12;
-    glowY += (targetY - glowY) * 0.12;
-    cursorGlow.style.transform = `translate3d(${glowX - innerWidth/2}px, ${glowY - innerHeight/2}px, 0)`;
-    requestAnimationFrame(animateGlow);
-  })();
+  // ===== 玫瑰光标：跟随鼠标的花苞，停下绽放 =====
+  const roseCursor = document.getElementById("roseCursor");
+  const rosePetals = document.getElementById("rosePetals");
+  // 初始藏到屏外，等第一次 pointermove 再亮
+  let curX = -200, curY = -200, tgtX = -200, tgtY = -200;
+  let bloomTimer = null;
+  const PETAL_EMOJIS = ["🌹", "🌷", "💗", "🌸", "🌹", "🌷"];
+  const BLOOM_DELAY = 420;   // 停留多久才绽放
+  const FOLLOW_EASE = 0.22;  // 缓动跟随速度（越大越紧贴）
 
-  // ===== 点击：落一朵红玫瑰 =====
-  // 防止短时间内点太多导致掉帧（最多同时存在 30 个）
-  let roseCount = 0;
-  const ROSE_LIMIT = 30;
-  // 触屏 / 鼠标都监听 pointerdown，使用捕获阶段以便在抽屉等元素上也能生效
-  addEventListener("pointerdown", (e) => {
-    spawnRose(e.clientX, e.clientY);
-  }, { passive: true });
-
-  function spawnRose(x, y) {
-    if (roseCount >= ROSE_LIMIT) return;
-    roseCount++;
-
-    const burst = document.createElement("div");
-    burst.className = "rose-burst";
-    burst.style.left = x + "px";
-    burst.style.top  = y + "px";
-
-    // 主玫瑰
-    const rose = document.createElement("span");
-    rose.className = "main-rose";
-    rose.textContent = "🌹";
-    burst.appendChild(rose);
-
-    // 扩散环
-    const ring = document.createElement("span");
-    ring.className = "ring";
-    burst.appendChild(ring);
-
-    // 围绕飞散的小花瓣
-    const petalEmojis = ["🌹", "🌹", "🥀", "🌷", "💗"];
-    const n = 5 + Math.floor(Math.random() * 2); // 5~6 片
+  function buildPetalRing() {
+    rosePetals.innerHTML = "";
+    const n = 6;
     for (let i = 0; i < n; i++) {
       const p = document.createElement("span");
-      p.className = "petal";
-      p.textContent = petalEmojis[i % petalEmojis.length];
-      const angle = (Math.PI * 2 * i) / n + (Math.random() - 0.5) * 0.6;
-      const dist  = 60 + Math.random() * 40;
-      const dx = Math.cos(angle) * dist;
-      const dy = Math.sin(angle) * dist - 18; // 整体偏上
-      const dr = (Math.random() - 0.5) * 720;
-      p.style.setProperty("--dx", dx + "px");
-      p.style.setProperty("--dy", dy + "px");
-      p.style.setProperty("--dr", dr + "deg");
-      p.style.animationDelay = (i * 0.02) + "s";
-      burst.appendChild(p);
+      p.className = "pp";
+      p.textContent = PETAL_EMOJIS[i % PETAL_EMOJIS.length];
+      p.style.setProperty("--a", (360 * i / n) + "deg");
+      // 错峰展开
+      p.style.animationDelay = (0.04 + i * 0.04) + "s";
+      rosePetals.appendChild(p);
     }
-
-    document.body.appendChild(burst);
-    setTimeout(() => {
-      burst.remove();
-      roseCount--;
-    }, 1200);
   }
+  buildPetalRing();
+
+  function scheduleBloom() {
+    clearTimeout(bloomTimer);
+    bloomTimer = setTimeout(() => {
+      // 重建 petal 节点以便重启动画
+      buildPetalRing();
+      // 强制 reflow 让新节点的初始状态立刻生效
+      void rosePetals.offsetWidth;
+      roseCursor.classList.add("bloom");
+    }, BLOOM_DELAY);
+  }
+
+  addEventListener("pointermove", (e) => {
+    tgtX = e.clientX;
+    tgtY = e.clientY;
+    if (roseCursor.classList.contains("bloom")) {
+      roseCursor.classList.remove("bloom");
+    }
+    scheduleBloom();
+  }, { passive: true });
+
+  // 离开窗口时收起花苞
+  addEventListener("pointerleave", () => {
+    clearTimeout(bloomTimer);
+    roseCursor.classList.remove("bloom");
+  });
+
+  (function animateRose() {
+    curX += (tgtX - curX) * FOLLOW_EASE;
+    curY += (tgtY - curY) * FOLLOW_EASE;
+    roseCursor.style.transform = `translate3d(${curX}px, ${curY}px, 0)`;
+    requestAnimationFrame(animateRose);
+  })();
 
   // 初始化
   renderOrders();         // 先从 localStorage 缓存里渲染（秒显）
