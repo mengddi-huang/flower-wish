@@ -210,19 +210,19 @@
   .wrap {
     position: relative;
     z-index: 2;
-    max-width: 1200px;
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 64px 24px 120px;
+    padding: 22px 22px 40px;
   }
 
   .hero {
     text-align: center;
-    margin-bottom: 56px;
+    margin-bottom: 18px;
     animation: fadeUp 1s ease both;
   }
 
   .hero h1 {
-    font-size: clamp(44px, 8vw, 92px);
+    font-size: clamp(30px, 4.4vw, 52px);
     font-weight: 900;
     letter-spacing: 6px;
     line-height: 1.02;
@@ -245,8 +245,8 @@
   }
 
   .hero .sub {
-    margin-top: 16px;
-    font-size: clamp(14px, 1.6vw, 18px);
+    margin-top: 6px;
+    font-size: clamp(12px, 1.2vw, 14px);
     color: var(--muted);
     letter-spacing: 2px;
   }
@@ -260,15 +260,15 @@
   /* ===== 花园网格 ===== */
   .garden {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 22px;
-    margin-bottom: 48px;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
   }
 
   .flower-card {
     position: relative;
-    border-radius: 22px;
-    padding: 28px 20px 22px;
+    border-radius: 16px;
+    padding: 14px 12px 12px;
     text-align: center;
     cursor: pointer;
     background: linear-gradient(160deg, rgba(255,255,255,0.85), rgba(255,255,255,0.55));
@@ -345,10 +345,10 @@
   }
 
   .flower-emoji {
-    font-size: 64px;
+    font-size: 42px;
     line-height: 1;
     display: inline-block;
-    filter: drop-shadow(0 6px 24px rgba(255,47,209,0.45)) drop-shadow(0 0 16px rgba(0,255,225,0.35));
+    filter: drop-shadow(0 6px 18px rgba(255,47,209,0.4)) drop-shadow(0 0 12px rgba(0,255,225,0.3));
     animation: sway 4s ease-in-out infinite;
   }
   .flower-card:nth-child(2n) .flower-emoji { animation-delay: -1s; }
@@ -359,18 +359,18 @@
   }
 
   .flower-name {
-    margin-top: 14px;
-    font-size: 20px;
+    margin-top: 8px;
+    font-size: 16px;
     font-weight: 800;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: var(--text);
   }
   .flower-meaning {
-    margin-top: 6px;
-    font-size: 12px;
+    margin-top: 3px;
+    font-size: 11px;
     color: var(--muted);
     letter-spacing: 1px;
-    min-height: 32px;
+    min-height: 16px;
   }
   .flower-card.selected .flower-name {
     background: linear-gradient(90deg, var(--acid-cyan), var(--acid-magenta), var(--acid-lime));
@@ -384,10 +384,10 @@
   /* ===== 许愿区 ===== */
   .wish-panel {
     position: relative;
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
-    padding: 32px 28px;
-    border-radius: 24px;
+    padding: 18px 22px;
+    border-radius: 20px;
     background: linear-gradient(160deg, rgba(255,255,255,0.92), rgba(255,255,255,0.7));
     border: 1px solid rgba(255,255,255,0.95);
     backdrop-filter: blur(16px);
@@ -397,9 +397,9 @@
 
   .wish-label {
     display: flex; align-items: center; gap: 8px;
-    font-size: 14px; letter-spacing: 2px;
+    font-size: 13px; letter-spacing: 2px;
     color: var(--muted);
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .wish-label::before {
     content: "✦"; color: var(--gold); font-size: 18px;
@@ -409,18 +409,18 @@
     width: 100%;
     background: rgba(255,255,255,0.7);
     border: 1px solid var(--border-soft);
-    border-radius: 14px;
-    padding: 14px 16px;
+    border-radius: 12px;
+    padding: 10px 14px;
     color: var(--text);
-    font-size: 16px;
+    font-size: 15px;
     font-family: inherit;
     resize: vertical;
     transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
   }
-  .wish-input { min-height: 100px; }
+  .wish-input { min-height: 64px; }
   .wish-flower-input {
-    padding: 16px 18px;
-    font-size: 17px;
+    padding: 12px 16px;
+    font-size: 15px;
     letter-spacing: 1px;
   }
   .wish-input:focus, .name-input:focus {
@@ -433,10 +433,10 @@
   /* 已选花语大卡片 */
   .chosen-card {
     position: relative;
-    min-height: 120px;
-    margin: 12px 0 22px;
-    padding: 22px 22px;
-    border-radius: 16px;
+    min-height: 76px;
+    margin: 8px 0 14px;
+    padding: 12px 18px;
+    border-radius: 14px;
     background: rgba(255,255,255,0.55);
     border: 1px dashed var(--border-strong);
     display: flex; align-items: center; gap: 18px;
@@ -449,24 +449,24 @@
       linear-gradient(135deg, var(--acid-cyan), var(--acid-magenta) 50%, var(--acid-lime)) border-box;
     box-shadow: 0 24px 60px -20px rgba(255,76,196,0.45), 0 0 50px -10px rgba(30,211,198,0.3);
   }
-  .chosen-empty { color: var(--muted); font-size: 14px; letter-spacing: 1px; }
+  .chosen-empty { color: var(--muted); font-size: 13px; letter-spacing: 1px; }
   .chosen-emoji {
-    font-size: 60px;
+    font-size: 42px;
     line-height: 1;
-    filter: drop-shadow(0 6px 24px rgba(255,47,209,0.5)) drop-shadow(0 0 18px rgba(0,255,225,0.35));
+    filter: drop-shadow(0 6px 18px rgba(255,47,209,0.45)) drop-shadow(0 0 14px rgba(0,255,225,0.3));
     animation: sway 4s ease-in-out infinite;
   }
-  .chosen-text { display: flex; flex-direction: column; gap: 6px; }
+  .chosen-text { display: flex; flex-direction: column; gap: 3px; }
   .chosen-name {
-    font-size: 24px; font-weight: 900; letter-spacing: 4px;
+    font-size: 18px; font-weight: 900; letter-spacing: 3px;
     background: linear-gradient(90deg, var(--acid-cyan), var(--acid-magenta), var(--acid-lime), var(--acid-orange), var(--acid-cyan));
     background-size: 300% 100%;
     -webkit-background-clip: text; background-clip: text; color: transparent;
     animation: shimmer 4s linear infinite;
   }
   .chosen-meaning {
-    font-size: 17px; font-weight: 500; letter-spacing: 1.5px;
-    line-height: 1.55;
+    font-size: 14px; font-weight: 500; letter-spacing: 1.5px;
+    line-height: 1.45;
     color: var(--text);
   }
   .chosen-meaning::before { content: "“"; color: var(--acid-cyan); margin-right: 2px; }
@@ -475,12 +475,12 @@
   .submit-btn {
     position: relative;
     width: 100%;
-    padding: 18px 24px;
+    padding: 12px 22px;
     border: none;
-    border-radius: 16px;
-    font-size: 18px;
+    border-radius: 14px;
+    font-size: 16px;
     font-weight: 900;
-    letter-spacing: 6px;
+    letter-spacing: 5px;
     color: #2b1638;
     background:
       linear-gradient(90deg,
@@ -551,11 +551,11 @@
   .divider {
     position: relative;
     text-align: center;
-    margin: 44px auto 28px;
-    max-width: 720px;
+    margin: 18px auto 12px;
+    max-width: 760px;
     color: var(--muted);
-    font-size: 13px;
-    letter-spacing: 6px;
+    font-size: 12px;
+    letter-spacing: 5px;
   }
   .divider::before, .divider::after {
     content: "";
@@ -575,9 +575,9 @@
   /* 你的名字输入 */
   .identity-row {
     display: flex; gap: 12px; align-items: center;
-    margin-bottom: 18px;
-    padding: 10px 14px;
-    border-radius: 14px;
+    margin-bottom: 10px;
+    padding: 7px 12px;
+    border-radius: 12px;
     background: rgba(255,255,255,0.7);
     border: 1px solid var(--border-soft);
     transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
@@ -601,8 +601,8 @@
   /* 字数计数 */
   .counter {
     text-align: right;
-    margin: 6px 2px 18px;
-    font-size: 12px;
+    margin: 3px 2px 10px;
+    font-size: 11px;
     letter-spacing: 1px;
     color: var(--muted);
   }
@@ -1067,13 +1067,37 @@
 
   footer {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 18px;
     color: var(--muted);
-    font-size: 12px;
+    font-size: 11px;
     letter-spacing: 2px;
     opacity: 0.7;
   }
   footer .heart { color: var(--acid-magenta); animation: beat 1.4s ease-in-out infinite; display: inline-block; filter: drop-shadow(0 0 6px rgba(255,47,209,0.8)); }
+
+  /* 矮屏时再压一档（保证 13/14寸笔记本能一屏显完） */
+  @media (max-height: 820px) {
+    .wrap { padding: 14px 22px 24px; }
+    .hero { margin-bottom: 12px; }
+    .hero h1 { font-size: clamp(26px, 3.6vw, 42px); letter-spacing: 4px; }
+    .hero .sub { margin-top: 4px; font-size: 11px; }
+    .garden { gap: 10px; margin-bottom: 12px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+    .flower-card { padding: 10px 10px 10px; border-radius: 14px; }
+    .flower-emoji { font-size: 34px; }
+    .flower-name { font-size: 14px; margin-top: 5px; letter-spacing: 1.5px; }
+    .flower-meaning { font-size: 10px; min-height: 0; margin-top: 2px; }
+    .wish-panel { padding: 14px 18px; border-radius: 18px; }
+    .chosen-card { min-height: 64px; padding: 10px 16px; margin: 6px 0 10px; }
+    .chosen-emoji { font-size: 36px; }
+    .chosen-name { font-size: 16px; letter-spacing: 2px; }
+    .chosen-meaning { font-size: 13px; }
+    .submit-btn { padding: 10px 20px; font-size: 15px; letter-spacing: 4px; }
+    .divider { margin: 10px auto 8px; }
+    .identity-row { padding: 6px 12px; margin-bottom: 8px; }
+    .wish-input { min-height: 50px; }
+    .counter { margin: 2px 2px 6px; }
+    footer { margin-top: 10px; }
+  }
 
   /* ===== 点击落红玫瑰 ===== */
   .rose-burst {
@@ -1234,7 +1258,7 @@
     </button>
   </section>
 
-  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真 · <span style="opacity:0.6;letter-spacing:1px;">v5.2 · 鼠标玫瑰花苞</span></footer>
+  <footer>Made with <span class="heart">❤</span> · 愿所有愿望都能成真 · <span style="opacity:0.6;letter-spacing:1px;">v5.3 · 紧凑一屏</span></footer>
 </div>
 
 <div class="toast" id="toast"></div>
